@@ -12,16 +12,27 @@ followers = ""
 followings = ""
 
 
-def extract(text):
-	lines = text.split("\n")
-	handles = []
-	for line in lines:
-		try:
-			handle = line.split("|")[2].strip()
-			if handle != "Username":
-				handles.append(handle)
-		except IndexError:
-			nope = 0
+def extract(text, mode="virtual"):
+	if mode == "close":
+		lines = text.split("\n")
+		handles = []
+		for line in lines:
+			try:
+				handle = line.split("|")[3].strip()
+				if handle != "Username":
+					handles.append(handle)
+			except IndexError:
+				nope = 0
+	else:
+		lines = text.split("\n")
+		handles = []
+		for line in lines:
+			try:
+				handle = line.split("|")[2].strip()
+				if handle != "Username":
+					handles.append(handle)
+			except IndexError:
+				nope = 0
 	return handles
 
 
@@ -42,12 +53,11 @@ for person in os.walk(path):
 
 
 		#Tagged List, offline connection
-		close = extract(tagged) + extract(wtagged)
+		close = extract(tagged, "close") + extract(wtagged, "close")
 		#Virtual List, only follow each other on IG, no offline connection
 		virtual = extract(followers) + extract(followings)
 		
 		os.makedirs(person[0] + "/connections", exist_ok=True)
-		print(close, virtual)
 		
 		with open(person[0] + "/connections/virtual", "w") as virtualFile:
 			for account in virtual:
