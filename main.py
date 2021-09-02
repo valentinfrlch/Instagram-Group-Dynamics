@@ -50,13 +50,13 @@ for person in os.walk(path):
 			break
 		
 
-
-
 		#Tagged List, offline connection
 		close = extract(tagged, "close") + extract(wtagged, "close")
+		close = list(dict.fromkeys(close))
 		#Virtual List, only follow each other on IG, no offline connection
 		virtual = extract(followers) + extract(followings)
-		
+		virtual = list(dict.fromkeys(virtual))
+
 		os.makedirs(person[0] + "/connections", exist_ok=True)
 		
 		with open(person[0] + "/connections/virtual", "w") as virtualFile:
