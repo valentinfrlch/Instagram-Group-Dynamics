@@ -97,12 +97,13 @@ def map(node="handle", type="real"):
 			for line in closeLines:
 				closeList.append([name, line.strip()])
 			#connections.append([name, virtualList, 1]) #closeList
-			break
+			#break
 
 	df = pd.DataFrame(connections, columns=['Source', 'Target'])
 	G = nx.from_pandas_edgelist(df, source="Source", target="Target")
-	net = Network(notebook=True, height='1920px', width='1080px')
+	net = Network(notebook=True, height='750px', width='100%', bgcolor="#121212", font_color='white')
 	net.from_nx(G)
+	net.toggle_physics(False)
 	net.show("Instagram-Social-Dynamics.html")
 
 
