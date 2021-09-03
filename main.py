@@ -73,7 +73,7 @@ def get():
 					closeFile.write(account + "\n")
 			time.sleep(15)
 
-def map(node="real", type="real"):
+def map(node="handle", type="real"):
 	"""""
 	node: Use real (node="real") names or the respective instagram handles (node="handle")
 	"""""
@@ -84,7 +84,7 @@ def map(node="real", type="real"):
 		closeList = []
 		if Path(person[0] + '/connections').is_dir():
 			if node == "real":
-				name = os.path.basename(person[0]).replace("\xa0", "  ")
+				name = os.path.basename(person[0]).replace("\xa0", " ")
 			else:
 				file = open(person[0] + "/handle")
 				name = file.readline()
@@ -97,10 +97,11 @@ def map(node="real", type="real"):
 			for line in closeLines:
 				closeList.append([name, line.strip()])
 			#connections.append([name, virtualList, 1]) #closeList
+			break
 
 	df = pd.DataFrame(connections, columns=['Source', 'Target'])
 	G = nx.from_pandas_edgelist(df, source="Source", target="Target")
-	net = Network(notebook=True)
+	net = Network(notebook=True, height='1920px', width='1080px')
 	net.from_nx(G)
 	net.show("Instagram-Social-Dynamics.html")
 
