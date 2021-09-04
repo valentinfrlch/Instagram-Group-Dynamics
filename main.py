@@ -3,8 +3,6 @@ import time
 from pathlib import Path
 import networkx as nx
 from pyvis.network import Network
-from src.Osintgram import Osintgram
-from instagram_private_api import ClientCookieExpiredError, ClientLoginRequiredError, ClientError, ClientThrottledError
 import pandas as pd
 
 path = "/home/kali/Desktop/People/"
@@ -12,6 +10,13 @@ tagged = ""
 wtagged = ""
 followers = ""
 followings = ""
+
+lookupNames = []
+lookupHandles = []
+lookup = open("/home/kali/Documents/lookup")
+for n in lookup:
+    lookupNames.append(n.split(":")[0].strip())
+    lookupHandles.append(n.split(":")[1].strip())
 
 
 def extract(text, mode="virtual"):
@@ -93,9 +98,11 @@ def map(node="handle", type="real"):
 			virtualLines = virtual.readlines()
 			closeLines = close.readlines()
 			for line in virtualLines:
-				connections.append([name, line.strip()])
+				if line.strip() in lookupHandles:
+					connections.append([name, line.strip()])
 			for line in closeLines:
-				closeList.append([name, line.strip()])
+				if line.strip() in lookupHandles:
+					closeList.append([name, line.strip()])
 			#connections.append([name, virtualList, 1]) #closeList
 			#break
 
@@ -103,10 +110,47 @@ def map(node="handle", type="real"):
 	G = nx.from_pandas_edgelist(df, source="Source", target="Target")
 	net = Network(notebook=True, height='750px', width='100%', bgcolor="#121212", font_color='white')
 	net.from_nx(G)
-	net.toggle_physics(False)
+	"""
+	net.set_options(
+	var options = {
+  "nodes": {
+    "borderWidthSelected": 4,
+    "color": {
+      "border": "rgba(0,156,233,1)",
+      "highlight": {
+        "border": "rgba(0,255,163,1)",
+        "background": "rgba(246,252,255,1)"
+      }
+    },
+    "shapeProperties": {
+      "borderRadius": 2
+    }
+  },
+  "edges": {
+    "color": {
+      "inherit": true
+    },
+    "smooth": {
+      "type": "continuous",
+      "forceDirection": "none"
+    }
+  },
+  "physics": {
+    "barnesHut": {
+      "springLength": 495,
+      "damping": 1,
+      "avoidOverlap": 1
+    },
+    "maxVelocity": 1,
+    "minVelocity": 0.01
+  }
+}
+	)
+	"""
+	net.show_buttons()
 	net.show("Instagram-Social-Dynamics.html")
 
 
 
-#map()
-get()
+map()
+#get()
