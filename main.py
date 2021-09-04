@@ -1,6 +1,4 @@
 import os
-import urllib
-import json
 import time
 from pathlib import Path
 import networkx as nx
@@ -46,14 +44,15 @@ def get():
 			file = open(person[0] + "/handle")
 			handle = file.readline()
 			print(handle)
-			try:
-				tagged = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c tagged").read()
-				wtagged = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c wtagged").read()
-				followers = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c followers").read()
-				followings = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c followings").read()
-			except (ClientCookieExpiredError, ClientLoginRequiredError, ClientError, ClientThrottledError) as e:
-				break
-			
+			check = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c tagged")
+			time.sleep(3)
+			if check.close() is not None:
+				print("skipping...")
+				continue
+			tagged = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c tagged").read()
+			wtagged = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c wtagged").read()
+			followers = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c followers").read()
+			followings = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c followings").read()
 
 			#Tagged List, offline connection
 			close = extract(tagged, "close") + extract(wtagged, "close")
@@ -71,7 +70,8 @@ def get():
 			with open(person[0] + "/connections/close", "w") as closeFile:
 				for account in close:
 					closeFile.write(account + "\n")
-			time.sleep(15)
+			print("success")
+			time.sleep(10)
 
 def map(node="handle", type="real"):
 	"""""
@@ -108,5 +108,5 @@ def map(node="handle", type="real"):
 
 
 
-map()
-#get()
+#map()
+get()
