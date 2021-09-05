@@ -6,7 +6,8 @@ To set up Osintgram check out the README on https://github.com/Datalux/Osintgram
 
 
 **Example image**
-![image](https://user-images.githubusercontent.com/85313672/132093199-bba77bf5-bf41-4ab8-82ea-4e59d3f6f4d5.png)
+![image](https://user-images.githubusercontent.com/85313672/132128722-d83aca91-3eb6-4dd5-b6f8-dfed60f0617d.png)
+
 
 **Interactive example**
 https://valentinfrlch.github.io/Instagram-Group-Dynamics/
