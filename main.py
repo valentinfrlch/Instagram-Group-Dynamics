@@ -1,7 +1,8 @@
 import os
 import time
 from pathlib import Path
-import networkx as nx
+from networkx.algorithms.shortest_paths import weighted
+from numpy.core.fromnumeric import size
 from pyvis.network import Network
 import pandas as pd
 
@@ -25,7 +26,7 @@ def extract(text, mode="virtual"):
 		handles = []
 		for line in lines:
 			try:
-				handle = line.split("|")[3].strip()
+				handle = line.split("|")[3].encode().strip()
 				if handle != "Username":
 					handles.append(handle)
 			except IndexError:
@@ -50,7 +51,7 @@ def get():
 			handle = file.readline()
 			print(handle)
 			check = os.popen("cd /home/kali/tools/Instagram-Social-Dynamics && python3 main.py " + handle + " -c tagged")
-			time.sleep(3)
+			time.sleep(8)
 			if check.close() is not None:
 				print("skipping...")
 				continue
@@ -70,26 +71,24 @@ def get():
 			
 			with open(person[0] + "/connections/virtual", "w") as virtualFile:
 				for account in virtual:
-					virtualFile.write(account + "\n")
+					virtualFile.write(str(account) + "\n")
 			
 			with open(person[0] + "/connections/close", "w") as closeFile:
 				for account in close:
-					closeFile.write(account + "\n")
+					closeFile.write(str(account) + "\n")
 			print("success")
 			time.sleep(10)
 
-def map(node="handle", type="real"):
+def map(node="real", type="real", mode="normal"):
 	"""""
 	node: Use real (node="real") names or the respective instagram handles (node="handle")
 	"""""
 	connections = []
 	for person in os.walk(path):
 		name = ""
-		virtualList = []
-		closeList = []
 		if Path(person[0] + '/connections').is_dir():
 			if node == "real":
-				name = os.path.basename(person[0]).replace("\xa0", " ")
+				name = os.path.basename(person[0]).encode()
 			else:
 				file = open(person[0] + "/handle")
 				name = file.readline()
@@ -98,59 +97,72 @@ def map(node="handle", type="real"):
 			virtualLines = virtual.readlines()
 			closeLines = close.readlines()
 			for line in virtualLines:
-				if line.strip() in lookupHandles:
-					connections.append([name, line.strip()])
+				if line.strip() in lookupHandles and line.strip() != name:
+					connections.append([name, line.strip(), 1])
 			for line in closeLines:
-				if line.strip() in lookupHandles:
-					closeList.append([name, line.strip()])
-			#connections.append([name, virtualList, 1]) #closeList
-			#break
+				if line.strip() in lookupHandles and line.strip() != name:
+					connections.append([name, line.strip(), 10])
 
-	df = pd.DataFrame(connections, columns=['Source', 'Target'])
-	G = nx.from_pandas_edgelist(df, source="Source", target="Target")
-	net = Network(notebook=True, height='750px', width='100%', bgcolor="#121212", font_color='white')
-	net.from_nx(G)
-	"""
-	net.set_options(
-	var options = {
-  "nodes": {
-    "borderWidthSelected": 4,
-    "color": {
-      "border": "rgba(0,156,233,1)",
-      "highlight": {
-        "border": "rgba(0,255,163,1)",
-        "background": "rgba(246,252,255,1)"
-      }
-    },
-    "shapeProperties": {
-      "borderRadius": 2
-    }
-  },
-  "edges": {
-    "color": {
-      "inherit": true
-    },
-    "smooth": {
-      "type": "continuous",
-      "forceDirection": "none"
-    }
-  },
-  "physics": {
-    "barnesHut": {
-      "springLength": 495,
-      "damping": 1,
-      "avoidOverlap": 1
-    },
-    "maxVelocity": 1,
-    "minVelocity": 0.01
-  }
-}
-	)
-	"""
-	net.show_buttons()
+	df = pd.DataFrame(connections, columns=['Source', 'Target', "weight"])
+	net = Network(notebook=True, height='100%', width='100%', bgcolor="#121212", font_color='white')
+	
+	sources = df['Source']
+	targets = df['Target']
+	weights = df['weight']
+	edge_data = zip(sources, targets, weights)
+	for e in edge_data:
+		src = e[0]
+		dst = e[1]
+		w = e[2]
+
+		net.add_node(src, src, title=src, size=8)
+		net.add_node(dst, dst, title=dst, size=8)
+		net.add_edge(src, dst, weights=w)
+
+	if mode == "normal":
+		net.set_options("""
+		var options = {
+	"nodes": {
+		"shadow": {
+      	"enabled": true
+    	},
+		"borderWidthSelected": 6,
+		"color": {
+		"border": "rgba(0,156,233,0.2)",
+		"highlight": {
+			"border": "rgba(0,255,163,1)",
+			"background": "rgba(246,252,255,1)"
+		}
+		},
+		"shapeProperties": {
+		"borderRadius": 2
+		}
+	},
+	"edges": {
+		"color": {
+		"inherit": true
+		},
+		"smooth": {
+		"type": "continuous",
+		"forceDirection": "none"
+		}
+	},
+	"physics": {
+		"barnesHut": {
+		"springLength": 495,
+		"damping": 1,
+		"avoidOverlap": 1
+		},
+		"maxVelocity": 1,
+		"minVelocity": 0.01
+	}
+	}
+	""")
+	else:
+		net.show_buttons()
 	net.show("Instagram-Social-Dynamics.html")
 
 
 
-map()
-#get()
+#map()
+get()
