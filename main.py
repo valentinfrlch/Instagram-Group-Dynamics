@@ -90,14 +90,13 @@ def compatibility(x,y):
 	yconnections = y[0] + y[1]
 	
 	# to intersect work with sets rather than lists
-	xconnections = set(xconnections)
-	yconnections = set(yconnections)
+	xconnections_set = set(xconnections)
+	yconnections_set = set(yconnections)
 	
-	common = xconnections.intersection(yconnections)
-	compatibility = common/(len(xconnections) + len(yconnections))
+	common = xconnections_set.intersection(yconnections_set)
+	compatibility = len(common)/(len(xconnections) + len(yconnections))
 	
 	return compatibility
-	
 	
 
 def map(node="real", type="real", mode="normal"):
