@@ -78,6 +78,27 @@ def get():
 					closeFile.write(str(account) + "\n")
 			print("success")
 			time.sleep(10)
+			
+def compatibility(x,y):
+	# x and y are 2d-lists containing followers and followings
+	# assuming connections are equal for followers and folowings
+	# This function returns a compatibility score, which indicates how compatible given people x and y are.
+	# it can be assumed that people are more likely to be friends with people similar to them. So if person x is friends with a friend of person y,
+	# the score is higher.
+	# x = [[a, c, c], [a, d]]
+	xconnections = x[0] + x[1]
+	yconnections = y[0] + y[1]
+	
+	# to intersect work with sets rather than lists
+	xconnections = set(xconnections)
+	yconnections = set(yconnections)
+	
+	common = xconnections.intersection(yconnections)
+	compatibility = common/(len(xconnections) + len(yconnections))
+	
+	return compatibility
+	
+	
 
 def map(node="real", type="real", mode="normal"):
 	"""""
